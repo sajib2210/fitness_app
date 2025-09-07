@@ -1,0 +1,46 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Add Goal</h5>
+      <form method="POST">
+        <div class="mb-2">
+          <select name="name" class="form-select">
+            <option>Fat Loss</option>
+            <option>Strength</option>
+            <option>Endurance</option>
+            <option>Push-ups</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="mb-2"><input name="target" class="form-control" placeholder="Target (e.g. Lose 5 kg, 50 push-ups)"></div>
+        <div class="mb-2"><input name="notes" class="form-control" placeholder="Notes"></div>
+        <button class="btn btn-success">Add Goal</button>
+      </form>
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h5>Your Goals</h5>
+      {% for g in goals %}
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <strong>{{ g.name }}</strong><br/>
+            <small>{{ g.target }} • {{ g.notes }}</small>
+          </div>
+          <form method="POST" action="{{ url_for('delete_goal', gid=g.id) }}">
+            <button class="btn btn-sm btn-outline-danger">Delete</button>
+          </form>
+        </div>
+      {% else %}
+        <p class="text-muted">No goals yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <img src="https://images.unsplash.com/photo-1526403224733-9a3b8d0b7a20?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=" class="img-fluid rounded">
+  </div>
+</div>
+{% endblock %}

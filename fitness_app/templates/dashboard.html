@@ -1,0 +1,70 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card p-3 mb-3">
+      <h4>Welcome back, {{ user.username }}</h4>
+      <p>Quick actions</p>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('goals') }}" class="btn btn-outline-primary">Manage Goals</a>
+        <a href="{{ url_for('records') }}" class="btn btn-outline-success">Log Record</a>
+        <a href="{{ url_for('friends') }}" class="btn btn-outline-secondary">Friends</a>
+        <a href="{{ url_for('feed') }}" class="btn btn-outline-info">Community Feed</a>
+      </div>
+    </div>
+
+    <div class="card p-3 mb-3">
+      <h5>Community & recent posts</h5>
+      {% for p in posts %}
+        <div class="border-bottom py-2">
+          <strong>{{ p.username }}</strong> <small class="text-muted">{{ p.created_at }}</small>
+          <div>{{ p.content }}</div>
+        </div>
+      {% else %}
+        <p>No posts yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card p-3 mb-3">
+      <h6>Your Goals</h6>
+      {% for g in goals %}
+        <div class="mb-2">
+          <strong>{{ g.name }}</strong><br/>
+          <small>{{ g.target }} • {{ g.notes }}</small>
+        </div>
+      {% else %}
+        <p class="text-muted">No goals yet. <a href="{{ url_for('goals') }}">Add one</a>.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card p-3">
+      <h6>Friends</h6>
+      {% for f in friends %}
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&s=" class="small-avatar">
+          <div>{{ f.username }}</div>
+        </div>
+      {% else %}
+        <p class="text-muted">No friends yet. <a href="{{ url_for('friends') }}">Connect</a>.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <h5>Create a quick post</h5>
+  <form method="POST" action="{{ url_for('post') }}">
+    <div class="mb-2"><textarea name="content" class="form-control" placeholder="Share an update..."></textarea></div>
+    <div class="mb-2">
+      <select name="visibility" class="form-select">
+        <option value="friends">Friends</option>
+        <option value="community">Community</option>
+      </select>
+    </div>
+    <button class="btn btn-primary">Post</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Log Workout / Record</h5>
+      <form method="POST">
+        <div class="mb-2"><input type="date" name="date" class="form-control" /></div>
+        <div class="mb-2">
+          <select name="activity" class="form-select">
+            <option>Running (km)</option>
+            <option>Push-ups</option>
+            <option>Squats</option>
+            <option>Weight (kg)</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="mb-2"><input name="value" class="form-control" placeholder="Value (e.g. 3.2 or 30)"></div>
+        <div class="mb-2">
+          <select name="share" class="form-select">
+            <option value="none">Private</option>
+            <option value="friends">Share with Friends</option>
+            <option value="community">Share to Community</option>
+          </select>
+        </div>
+        <button class="btn btn-primary">Add Record</button>
+      </form>
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h5>Recent Records</h5>
+      {% for r in records %}
+        <div class="border-bottom py-2">
+          <div><strong>{{ r.activity }}</strong> — {{ r.value }}</div>
+          <small class="text-muted">{{ r.date }} • shared: {{ r.shared }}</small>
+        </div>
+      {% else %}
+        <p class="text-muted">No records yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Progress Charts</h5>
+      <canvas id="chart" width="400" height="300"></canvas>
+      <small class="text-muted">Choose different activities and watch the trends.</small>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function fetchData(){
+  const res = await fetch("{{ url_for('chart_data') }}");
+  const data = await res.json();
+  return data;
+}
+function buildDatasets(data){
+  const colors = ["0,120,255","220,50,47","34,197,94","245,158,11","128,90,213","20,83,45"];
+  const datasets = [];
+  let idx = 0;
+  for(const act in data){
+    const arr = data[act];
+    arr.sort((a,b)=>a.date.localeCompare(b.date));
+    const labels = arr.map(x=>x.date);
+    const values = arr.map(x=>x.value);
+    datasets.push({
+      label: act,
+      data: values,
+      fill: false,
+      tension: 0.2,
+      borderColor: `rgb(${colors[idx % colors.length]})`
+    });
+    idx++;
+  }
+  return {labels: (Object.values(data)[0]||[]).map(x=>x.date), datasets};
+}
+
+(async ()=>{
+  const data = await fetchData();
+  const ctx = document.getElementById('chart').getContext('2d');
+  const dd = buildDatasets(data);
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: dd,
+    options: {
+      responsive: true,
+      interaction: {mode:'index', intersect:false}
+    }
+  });
+})();
+</script>
+{% endblock %}
